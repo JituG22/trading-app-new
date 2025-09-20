@@ -6,39 +6,7 @@ import {
 } from "react-router-dom";
 import AuthLayout from "./layouts/AuthLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
-
-// Placeholder components for routes
-const LoginPage = () => (
-  <div className="text-center">
-    <h2 className="text-2xl font-bold mb-4">Login</h2>
-    <p className="text-gray-600">Login page will be implemented in Step 4</p>
-  </div>
-);
-
-const SignUpPage = () => (
-  <div className="text-center">
-    <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
-    <p className="text-gray-600">Sign up page will be implemented in Step 4</p>
-  </div>
-);
-
-const ForgotPasswordPage = () => (
-  <div className="text-center">
-    <h2 className="text-2xl font-bold mb-4">Forgot Password</h2>
-    <p className="text-gray-600">
-      Forgot password page will be implemented in Step 4
-    </p>
-  </div>
-);
-
-const ResetPasswordPage = () => (
-  <div className="text-center">
-    <h2 className="text-2xl font-bold mb-4">Reset Password</h2>
-    <p className="text-gray-600">
-      Reset password page will be implemented in Step 4
-    </p>
-  </div>
-);
+import { SignUp, Login, ForgotPassword, ResetPassword } from "./pages/auth";
 
 const DashboardPage = () => (
   <div>
@@ -71,19 +39,19 @@ const router = createBrowserRouter([
     children: [
       {
         path: "login",
-        element: <LoginPage />,
+        element: <Login />,
       },
       {
         path: "signup",
-        element: <SignUpPage />,
+        element: <SignUp />,
       },
       {
         path: "forgot-password",
-        element: <ForgotPasswordPage />,
+        element: <ForgotPassword />,
       },
       {
         path: "reset-password",
-        element: <ResetPasswordPage />,
+        element: <ResetPassword />,
       },
     ],
   },

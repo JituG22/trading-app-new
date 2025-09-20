@@ -119,7 +119,7 @@ backend/
 
 ## 🎨 **STEP 4: Create Authentication Pages (Frontend)**
 
-**Status**: Waiting for Step 3  
+**Status**: ✅ Complete  
 **Task**: Develop signup, login, forgot password, and reset password pages
 
 ```
@@ -160,7 +160,7 @@ Refer to my prompt.md for detailed field specifications and validation rules.
 
 ## 🔗 **STEP 5: Implement Authentication APIs (Backend)**
 
-**Status**: Waiting for Step 4  
+**Status**: Ready to start  
 **Task**: Create user registration, login, forgot password, and reset password endpoints
 
 ```
