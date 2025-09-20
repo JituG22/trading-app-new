@@ -1,55 +1,69 @@
-# Trading App Frontend
+# React + TypeScript + Vite
 
-This is the React TypeScript frontend for the Trading App project.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Tech Stack
-- React 18+ with TypeScript
-- Vite for build tooling
-- Tailwind CSS for styling
-- React Router DOM for routing
-- React Hook Form for form handling
-- Axios for API calls
+Currently, two official plugins are available:
 
-## Getting Started
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-### Prerequisites
-- Node.js (v18 or higher)
-- npm or yarn
+## Expanding the ESLint configuration
 
-### Installation
-```bash
-# Install dependencies
-npm install
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-# Start development server
-npm run dev
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-# Build for production
-npm run build
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-## Project Structure
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-src/
-├── components/       # Reusable UI components
-├── pages/           # Page components
-├── layouts/         # Layout components (Auth, Dashboard)
-├── hooks/           # Custom React hooks
-├── services/        # API service functions
-├── utils/           # Utility functions
-├── types/           # TypeScript type definitions
-└── styles/          # Global styles and Tailwind config
-```
-
-## Features
-- User authentication (signup, login, forgot/reset password)
-- Protected routes
-- Responsive dashboard with sidebar navigation
-- Form validation with real-time feedback
-- Loading states and error handling
-
-## Development
-This frontend connects to the Node.js backend API running on http://localhost:5000
-
-## Documentation
-See the main project documentation in the root directory for complete specifications.

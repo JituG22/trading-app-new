@@ -17,6 +17,7 @@ trading-app-new/
 ## Tech Stack
 
 ### Frontend
+
 - React 18+ with TypeScript
 - Vite for build tooling
 - Tailwind CSS for styling
@@ -25,6 +26,7 @@ trading-app-new/
 - Axios for API calls
 
 ### Backend
+
 - Node.js with TypeScript
 - Express.js web framework
 - MongoDB with Mongoose ODM
@@ -35,6 +37,7 @@ trading-app-new/
 ## Features
 
 ### Authentication System
+
 - ✅ User registration with email/password
 - ✅ User login with JWT tokens
 - ✅ Forgot password functionality
@@ -42,6 +45,7 @@ trading-app-new/
 - ✅ Protected routes and middleware
 
 ### Dashboard
+
 - ✅ Responsive dashboard layout
 - ✅ Sidebar navigation
 - ✅ Top navigation with user profile
@@ -50,6 +54,7 @@ trading-app-new/
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js (v18 or higher)
 - MongoDB running on localhost:27017
 - Git
@@ -98,4 +103,4 @@ Use the prompts in `development-prompts.md` file with any AI coding agent to bui
 
 ---
 
-*Built with comprehensive planning and step-by-step development approach.*
+_Built with comprehensive planning and step-by-step development approach._
