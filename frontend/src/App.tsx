@@ -1,7 +1,11 @@
-import React from 'react';
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
-import AuthLayout from './layouts/AuthLayout';
-import DashboardLayout from './layouts/DashboardLayout';
+import React from "react";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
+import AuthLayout from "./layouts/AuthLayout";
+import DashboardLayout from "./layouts/DashboardLayout";
 
 // Placeholder components for routes
 const LoginPage = () => (
@@ -21,14 +25,18 @@ const SignUpPage = () => (
 const ForgotPasswordPage = () => (
   <div className="text-center">
     <h2 className="text-2xl font-bold mb-4">Forgot Password</h2>
-    <p className="text-gray-600">Forgot password page will be implemented in Step 4</p>
+    <p className="text-gray-600">
+      Forgot password page will be implemented in Step 4
+    </p>
   </div>
 );
 
 const ResetPasswordPage = () => (
   <div className="text-center">
     <h2 className="text-2xl font-bold mb-4">Reset Password</h2>
-    <p className="text-gray-600">Reset password page will be implemented in Step 4</p>
+    <p className="text-gray-600">
+      Reset password page will be implemented in Step 4
+    </p>
   </div>
 );
 
@@ -54,33 +62,33 @@ const DashboardPage = () => (
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <Navigate to="/auth/login" replace />,
   },
   {
-    path: '/auth',
+    path: "/auth",
     element: <AuthLayout />,
     children: [
       {
-        path: 'login',
+        path: "login",
         element: <LoginPage />,
       },
       {
-        path: 'signup',
+        path: "signup",
         element: <SignUpPage />,
       },
       {
-        path: 'forgot-password',
+        path: "forgot-password",
         element: <ForgotPasswordPage />,
       },
       {
-        path: 'reset-password',
+        path: "reset-password",
         element: <ResetPasswordPage />,
       },
     ],
   },
   {
-    path: '/dashboard',
+    path: "/dashboard",
     element: <DashboardLayout />,
     children: [
       {

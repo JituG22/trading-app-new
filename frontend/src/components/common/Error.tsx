@@ -1,7 +1,7 @@
-import React from 'react';
-import type { ErrorProps } from '../../types';
+import React from "react";
+import type { ErrorProps } from "../../types";
 
-const Error: React.FC<ErrorProps> = ({ message, className = '' }) => {
+const Error: React.FC<ErrorProps> = ({ message, className = "" }) => {
   return (
     <div className={`rounded-md bg-red-50 p-4 ${className}`}>
       <div className="flex">

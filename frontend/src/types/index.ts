@@ -61,7 +61,7 @@ export interface AuthResponse {
 
 // Common component props
 export interface LoadingProps {
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   className?: string;
 }
 

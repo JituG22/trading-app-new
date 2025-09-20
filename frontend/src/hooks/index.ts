@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 // Custom hook for managing loading states
 export const useLoading = (initialState = false) => {
@@ -29,7 +29,8 @@ export const useLocalStorage = <T>(key: string, initialValue: T) => {
 
   const setValue = (value: T | ((val: T) => T)) => {
     try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      const valueToStore =
+        value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
       window.localStorage.setItem(key, JSON.stringify(valueToStore));
     } catch (error) {
@@ -51,16 +52,17 @@ export const useApi = <T = any>() => {
       setIsLoading(true);
       setError(null);
       const result = await apiCall();
-      
+
       if (result.success) {
         setData(result.data);
       } else {
-        setError(result.error || 'An error occurred');
+        setError(result.error || "An error occurred");
       }
-      
+
       return result;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      const errorMessage =
+        err instanceof Error ? err.message : "An unexpected error occurred";
       setError(errorMessage);
       return { success: false, error: errorMessage };
     } finally {

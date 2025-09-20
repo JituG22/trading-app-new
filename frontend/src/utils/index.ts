@@ -3,17 +3,17 @@
 // Format date to readable string
 export const formatDate = (date: string | Date): string => {
   const d = new Date(date);
-  return d.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 };
 
 // Format currency
-export const formatCurrency = (amount: number, currency = 'USD'): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
+export const formatCurrency = (amount: number, currency = "USD"): string => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
     currency,
   }).format(amount);
 };
@@ -52,12 +52,14 @@ export const getInitials = (firstName: string, lastName: string): string => {
 };
 
 // Password strength checker
-export const getPasswordStrength = (password: string): {
+export const getPasswordStrength = (
+  password: string
+): {
   score: number;
   feedback: string;
 } => {
   let score = 0;
-  let feedback = '';
+  let feedback = "";
 
   if (password.length >= 8) score += 1;
   if (/[a-z]/.test(password)) score += 1;
@@ -68,19 +70,19 @@ export const getPasswordStrength = (password: string): {
   switch (score) {
     case 0:
     case 1:
-      feedback = 'Very weak';
+      feedback = "Very weak";
       break;
     case 2:
-      feedback = 'Weak';
+      feedback = "Weak";
       break;
     case 3:
-      feedback = 'Fair';
+      feedback = "Fair";
       break;
     case 4:
-      feedback = 'Good';
+      feedback = "Good";
       break;
     case 5:
-      feedback = 'Strong';
+      feedback = "Strong";
       break;
   }
 
@@ -96,28 +98,28 @@ export const storage = {
       return null;
     }
   },
-  
+
   set: (key: string, value: string): void => {
     try {
       localStorage.setItem(key, value);
     } catch {
-      console.warn('Failed to store item in localStorage');
+      console.warn("Failed to store item in localStorage");
     }
   },
-  
+
   remove: (key: string): void => {
     try {
       localStorage.removeItem(key);
     } catch {
-      console.warn('Failed to remove item from localStorage');
+      console.warn("Failed to remove item from localStorage");
     }
   },
-  
+
   clear: (): void => {
     try {
       localStorage.clear();
     } catch {
-      console.warn('Failed to clear localStorage');
+      console.warn("Failed to clear localStorage");
     }
   },
 };
