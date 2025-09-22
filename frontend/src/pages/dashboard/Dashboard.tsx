@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useTheme } from "../../contexts/ThemeContext";
-import AuthDebug from "../../components/AuthDebug";
+// import AuthDebug from "../../components/AuthDebug"; // Hidden for production
 import {
   ChartBarIcon,
   CurrencyDollarIcon,
@@ -182,7 +182,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <AuthDebug />
+      {/* <AuthDebug /> - Hidden for production */}
       {/* Welcome Section */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">

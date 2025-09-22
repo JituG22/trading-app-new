@@ -8,7 +8,7 @@ import { loginSchema } from "../../utils/validation";
 import { FormField, Button } from "../../components/forms";
 import { useAuth } from "../../hooks/useAuth";
 import { useTheme } from "../../contexts/ThemeContext";
-import AuthDebug from "../../components/AuthDebug";
+// import AuthDebug from "../../components/AuthDebug"; // Hidden for production
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -70,7 +70,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <AuthDebug />
+      {/* <AuthDebug /> - Hidden for production */}
       <div>
         <h2 className="text-2xl font-bold theme-text-primary">Welcome back</h2>
         <p className="mt-2 text-sm theme-text-secondary">
