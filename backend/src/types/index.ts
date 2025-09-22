@@ -26,6 +26,11 @@ export interface IPasswordResetToken extends Document {
 export interface IJWTPayload {
   userId: string;
   email: string;
+  type?: "access" | "refresh";
+  iat?: number;
+  exp?: number;
+  iss?: string;
+  sub?: string;
 }
 
 // API Response interface

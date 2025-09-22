@@ -56,7 +56,7 @@ export interface ApiResponse<T = any> {
 
 export interface AuthResponse {
   user: User;
-  token: string;
+  token: string; // API returns single token field, not tokens object
 }
 
 // Common component props

@@ -1,5 +1,7 @@
-// Placeholder file for models
-// User and PasswordResetToken models will be implemented in Step 5
+// Model exports
+export { default as User } from "./User";
+export { default as PasswordResetToken } from "./PasswordResetToken";
 
-export const placeholder =
-  "Models will be implemented in Step 5: Authentication APIs";
+// Type exports
+export type { IUser } from "./User";
+export type { IPasswordResetToken } from "./PasswordResetToken";

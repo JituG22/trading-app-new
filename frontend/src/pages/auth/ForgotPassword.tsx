@@ -1,14 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { joiResolver } from "@hookform/resolvers/joi";
+import { toast } from "react-toastify";
 import type { ForgotPasswordFormData } from "../../types";
 import { forgotPasswordSchema } from "../../utils/validation";
 import { FormField, Button } from "../../components/forms";
+import { useAuth } from "../../hooks/useAuth";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const ForgotPassword: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { theme } = useTheme();
   const [isSuccess, setIsSuccess] = useState(false);
+  const { forgotPassword, isLoading, error, clearError, isAuthenticated } =
+    useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Clear errors when component mounts
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const {
     register,
@@ -23,23 +41,24 @@ const ForgotPassword: React.FC = () => {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
-      setIsLoading(true);
+      clearError();
+      const success = await forgotPassword(data.email);
 
-      // TODO: Replace with actual API call
-      console.log("Forgot password data:", data);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      setIsSuccess(true);
-    } catch (error) {
-      console.error("Forgot password error:", error);
+      if (success) {
+        setIsSuccess(true);
+        toast.success("Password reset email sent! Please check your inbox.");
+      } else {
+        setError("root", {
+          type: "manual",
+          message: error || "Failed to send reset email. Please try again.",
+        });
+      }
+    } catch (err: any) {
+      console.error("Forgot password error:", err);
       setError("root", {
         type: "manual",
-        message: "Failed to send reset email. Please try again.",
+        message: "An unexpected error occurred. Please try again.",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -54,9 +73,21 @@ const ForgotPassword: React.FC = () => {
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+          <div
+            className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full ${
+              theme === "glass"
+                ? "bg-green-500 bg-opacity-20 backdrop-blur-sm border border-green-300 border-opacity-30"
+                : theme === "dark"
+                ? "bg-green-900 bg-opacity-50"
+                : "bg-green-100"
+            }`}
+          >
             <svg
-              className="h-6 w-6 text-green-600"
+              className={`h-6 w-6 ${
+                theme === "glass" || theme === "dark"
+                  ? "text-green-300"
+                  : "text-green-600"
+              }`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -69,21 +100,33 @@ const ForgotPassword: React.FC = () => {
               />
             </svg>
           </div>
-          <h2 className="mt-4 text-2xl font-bold text-gray-900">
+          <h2 className="mt-4 text-2xl font-bold theme-text-primary">
             Check your email
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm theme-text-secondary">
             We've sent a password reset link to{" "}
-            <span className="font-medium text-gray-900">
+            <span className="font-medium theme-text-primary">
               {getValues("email")}
             </span>
           </p>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+        <div
+          className={`border rounded-md p-4 ${
+            theme === "glass"
+              ? "bg-blue-500 bg-opacity-20 backdrop-blur-sm border-blue-300 border-opacity-30"
+              : theme === "dark"
+              ? "bg-blue-900 bg-opacity-50 border-blue-700"
+              : "bg-blue-50 border-blue-200"
+          }`}
+        >
           <div className="flex">
             <svg
-              className="h-5 w-5 text-blue-400"
+              className={`h-5 w-5 ${
+                theme === "glass" || theme === "dark"
+                  ? "text-blue-300"
+                  : "text-blue-400"
+              }`}
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -94,8 +137,22 @@ const ForgotPassword: React.FC = () => {
               />
             </svg>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800">Next steps:</h3>
-              <div className="mt-2 text-sm text-blue-700">
+              <h3
+                className={`text-sm font-medium ${
+                  theme === "glass" || theme === "dark"
+                    ? "text-blue-100"
+                    : "text-blue-800"
+                }`}
+              >
+                Next steps:
+              </h3>
+              <div
+                className={`mt-2 text-sm ${
+                  theme === "glass" || theme === "dark"
+                    ? "text-blue-200"
+                    : "text-blue-700"
+                }`}
+              >
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Check your email inbox (including spam folder)</li>
                   <li>Click the reset link within 30 minutes</li>
@@ -121,7 +178,13 @@ const ForgotPassword: React.FC = () => {
           <div className="text-center">
             <Link
               to="/auth/login"
-              className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              className={`text-sm font-medium transition-colors ${
+                theme === "glass"
+                  ? "text-blue-200 hover:text-white"
+                  : theme === "dark"
+                  ? "text-blue-400 hover:text-blue-300"
+                  : "text-blue-600 hover:text-blue-500"
+              }`}
             >
               ← Back to Sign In
             </Link>
@@ -134,10 +197,10 @@ const ForgotPassword: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">
+        <h2 className="text-2xl font-bold theme-text-primary">
           Forgot your password?
         </h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-sm theme-text-secondary">
           No worries! Enter your email address and we'll send you a link to
           reset your password.
         </p>
@@ -156,7 +219,15 @@ const ForgotPassword: React.FC = () => {
         />
 
         {errors.root && (
-          <div className="rounded-md bg-red-50 p-4">
+          <div
+            className={`rounded-md p-4 ${
+              theme === "glass"
+                ? "bg-red-500 bg-opacity-20 backdrop-blur-sm border border-red-300 border-opacity-30"
+                : theme === "dark"
+                ? "bg-red-900 bg-opacity-50"
+                : "bg-red-50"
+            }`}
+          >
             <div className="flex">
               <svg
                 className="h-5 w-5 text-red-400"
@@ -170,7 +241,15 @@ const ForgotPassword: React.FC = () => {
                 />
               </svg>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{errors.root.message}</p>
+                <p
+                  className={`text-sm ${
+                    theme === "glass" || theme === "dark"
+                      ? "text-red-100"
+                      : "text-red-800"
+                  }`}
+                >
+                  {errors.root.message}
+                </p>
               </div>
             </div>
           </div>
@@ -183,6 +262,7 @@ const ForgotPassword: React.FC = () => {
           fullWidth
           isLoading={isLoading}
           disabled={!isValid}
+          className="theme-button-primary"
         >
           {isLoading ? "Sending Reset Link..." : "Send Reset Link"}
         </Button>
@@ -191,7 +271,13 @@ const ForgotPassword: React.FC = () => {
       <div className="text-center">
         <Link
           to="/auth/login"
-          className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
+          className={`text-sm font-medium transition-colors ${
+            theme === "glass"
+              ? "text-blue-200 hover:text-white"
+              : theme === "dark"
+              ? "text-blue-400 hover:text-blue-300"
+              : "text-blue-600 hover:text-blue-500"
+          }`}
         >
           ← Back to Sign In
         </Link>

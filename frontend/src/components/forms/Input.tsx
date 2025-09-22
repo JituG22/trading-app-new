@@ -1,5 +1,6 @@
 import React, { forwardRef } from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
+import { useTheme } from "../../contexts/ThemeContext";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -25,6 +26,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
+    const { theme } = useTheme();
     const inputType = showPasswordToggle
       ? showPassword
         ? "text"
@@ -33,9 +35,17 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">
+        <label
+          className={`block text-sm font-medium ${
+            theme === "glass"
+              ? "text-white"
+              : theme === "dark"
+              ? "text-gray-200"
+              : "text-gray-700"
+          }`}
+        >
           {label}
-          {props.required && <span className="text-red-500 ml-1">*</span>}
+          {props.required && <span className="text-red-400 ml-1">*</span>}
         </label>
         <div className="relative">
           <input
@@ -47,7 +57,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               sm:text-sm transition-colors duration-200
               ${
                 error
-                  ? "border-red-300 bg-red-50 focus:ring-red-500 focus:border-red-500"
+                  ? theme === "glass"
+                    ? "border-red-400 bg-red-500 bg-opacity-10 backdrop-blur-sm focus:ring-red-400 focus:border-red-400 text-white placeholder-red-200"
+                    : theme === "dark"
+                    ? "border-red-500 bg-red-900 bg-opacity-30 focus:ring-red-500 focus:border-red-500 text-red-100"
+                    : "border-red-300 bg-red-50 focus:ring-red-500 focus:border-red-500"
+                  : theme === "glass"
+                  ? "bg-white bg-opacity-10 border-white border-opacity-20 backdrop-blur-sm text-white placeholder-white placeholder-opacity-70 focus:ring-blue-400 focus:border-blue-400"
+                  : theme === "dark"
+                  ? "bg-gray-700 border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500"
                   : "border-gray-300 bg-white"
               }
               ${className || ""}
@@ -63,7 +81,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             >
               {showPassword ? (
                 <svg
-                  className="h-5 w-5 text-gray-400 hover:text-gray-600"
+                  className={`h-5 w-5 ${
+                    theme === "glass" || theme === "dark"
+                      ? "text-gray-300 hover:text-white"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -77,7 +99,11 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 </svg>
               ) : (
                 <svg
-                  className="h-5 w-5 text-gray-400 hover:text-gray-600"
+                  className={`h-5 w-5 ${
+                    theme === "glass" || theme === "dark"
+                      ? "text-gray-300 hover:text-white"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -100,7 +126,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {error && (
-          <p className="text-sm text-red-600 flex items-center mt-1">
+          <p
+            className={`text-sm flex items-center mt-1 ${
+              theme === "glass" || theme === "dark"
+                ? "text-red-300"
+                : "text-red-600"
+            }`}
+          >
             <svg
               className="w-4 h-4 mr-1"
               fill="currentColor"

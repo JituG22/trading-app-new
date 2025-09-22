@@ -8,7 +8,20 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import AuthLayout from "./layouts/AuthLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AuthRoute from "./components/AuthRoute";
+import AuthRedirect from "./components/AuthRedirect";
+import ThemeSync from "./components/ThemeSync";
+import { SignUp, Login, ForgotPassword, ResetPassword } from "./pages/auth";
+import Dashboard from "./pages/dashboard/Dashboard";
+import Settings from "./pages/dashboard/Settings";
+import "./utils/debugAuth"; // Import debug utility
+import "./utils/authTest"; // Import auth test utility
+import "react-toastify/dist/ReactToastify.css";
+import "./styles/themes.css";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import AuthLayout from "./layouts/AuthLayout";
+import DashboardLayout from "./layouts/DashboardLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import AuthRedirect from "./components/AuthRedirect";
 import ThemeSync from "./components/ThemeSync";
 import { SignUp, Login, ForgotPassword, ResetPassword } from "./pages/auth";
@@ -52,11 +65,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/auth",
-    element: (
-      <AuthRoute>
-        <AuthLayout />
-      </AuthRoute>
-    ),
+    element: <AuthLayout />,
     children: [
       {
         path: "login",

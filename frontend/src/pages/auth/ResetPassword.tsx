@@ -2,18 +2,33 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { joiResolver } from "@hookform/resolvers/joi";
+import { toast } from "react-toastify";
 import type { ResetPasswordFormData } from "../../types";
 import { resetPasswordSchema } from "../../utils/validation";
 import { FormField, Button, PasswordStrength } from "../../components/forms";
+import { useAuth } from "../../hooks/useAuth";
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [isLoading, setIsLoading] = useState(false);
   const [tokenValid, setTokenValid] = useState<boolean | null>(null);
   const [passwordValue, setPasswordValue] = useState("");
+  const { resetPassword, isLoading, error, clearError, isAuthenticated } =
+    useAuth();
 
   const token = searchParams.get("token");
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Clear errors when component mounts
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const {
     register,
@@ -61,30 +76,32 @@ const ResetPassword: React.FC = () => {
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     try {
-      setIsLoading(true);
+      clearError();
+      const success = await resetPassword(
+        data.token,
+        data.password,
+        data.confirmPassword
+      );
 
-      // TODO: Replace with actual API call
-      console.log("Reset password data:", data);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Navigate to login page with success message
-      navigate("/auth/login", {
-        state: {
+      if (success) {
+        toast.success(
+          "Password reset successfully! Please log in with your new password."
+        );
+        navigate("/auth/login", { replace: true });
+      } else {
+        setError("root", {
+          type: "manual",
           message:
-            "Password reset successfully! Please log in with your new password.",
-        },
-      });
-    } catch (error) {
-      console.error("Reset password error:", error);
+            error ||
+            "Failed to reset password. Please try again or request a new reset link.",
+        });
+      }
+    } catch (err: any) {
+      console.error("Reset password error:", err);
       setError("root", {
         type: "manual",
-        message:
-          "Failed to reset password. Please try again or request a new reset link.",
+        message: "An unexpected error occurred. Please try again.",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 

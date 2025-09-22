@@ -1,18 +1,38 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { joiResolver } from "@hookform/resolvers/joi";
+import { toast } from "react-toastify";
 import type { LoginFormData } from "../../types";
 import { loginSchema } from "../../utils/validation";
 import { FormField, Button } from "../../components/forms";
+import { useAuth } from "../../hooks/useAuth";
+import { useTheme } from "../../contexts/ThemeContext";
+import AuthDebug from "../../components/AuthDebug";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(false);
+  const { login, isLoading, error, clearError, isAuthenticated } = useAuth();
+  const { theme } = useTheme();
 
   // Check for success message from sign up
   const successMessage = location.state?.message;
+
+  // Get the intended destination or default to dashboard
+  const from = location.state?.from?.pathname || "/dashboard";
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
+
+  // Clear errors when component mounts
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const {
     register,
@@ -26,41 +46,55 @@ const Login: React.FC = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      setIsLoading(true);
+      clearError();
+      const success = await login(data.email, data.password);
 
-      // TODO: Replace with actual API call
-      console.log("Login data:", data);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Navigate to dashboard on successful login
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Login error:", error);
+      if (success) {
+        toast.success("Welcome back! Login successful.");
+        navigate(from, { replace: true });
+      } else {
+        // Error is handled by context, but show a form error if needed
+        setError("root", {
+          type: "manual",
+          message: error || "Login failed. Please try again.",
+        });
+      }
+    } catch (err: any) {
+      console.error("Login error:", err);
       setError("root", {
         type: "manual",
-        message: "Invalid email or password. Please try again.",
+        message: "An unexpected error occurred. Please try again.",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
     <div className="space-y-6">
+      <AuthDebug />
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <h2 className="text-2xl font-bold theme-text-primary">Welcome back</h2>
+        <p className="mt-2 text-sm theme-text-secondary">
           Sign in to your account to continue
         </p>
       </div>
 
       {successMessage && (
-        <div className="rounded-md bg-green-50 p-4">
+        <div
+          className={`rounded-md p-4 ${
+            theme === "glass"
+              ? "bg-green-500 bg-opacity-20 backdrop-blur-sm border border-green-300 border-opacity-30"
+              : theme === "dark"
+              ? "bg-green-900 bg-opacity-50"
+              : "bg-green-50"
+          }`}
+        >
           <div className="flex">
             <svg
-              className="h-5 w-5 text-green-400"
+              className={`h-5 w-5 ${
+                theme === "glass" || theme === "dark"
+                  ? "text-green-300"
+                  : "text-green-400"
+              }`}
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -71,7 +105,15 @@ const Login: React.FC = () => {
               />
             </svg>
             <div className="ml-3">
-              <p className="text-sm text-green-800">{successMessage}</p>
+              <p
+                className={`text-sm ${
+                  theme === "glass" || theme === "dark"
+                    ? "text-green-100"
+                    : "text-green-800"
+                }`}
+              >
+                {successMessage}
+              </p>
             </div>
           </div>
         </div>
@@ -104,12 +146,18 @@ const Login: React.FC = () => {
             <input
               id="remember-me"
               type="checkbox"
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className={`h-4 w-4 rounded focus:ring-2 focus:ring-offset-2 ${
+                theme === "glass"
+                  ? "bg-white bg-opacity-20 border-white border-opacity-30 text-blue-400 focus:ring-blue-400"
+                  : theme === "dark"
+                  ? "bg-gray-700 border-gray-600 text-blue-500 focus:ring-blue-500"
+                  : "bg-white border-gray-300 text-blue-600 focus:ring-blue-500"
+              }`}
               {...register("rememberMe")}
             />
             <label
               htmlFor="remember-me"
-              className="ml-2 block text-sm text-gray-900"
+              className="ml-2 block text-sm theme-text-primary"
             >
               Remember me
             </label>
@@ -118,7 +166,13 @@ const Login: React.FC = () => {
           <div className="text-sm">
             <Link
               to="/auth/forgot-password"
-              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              className={`font-medium transition-colors ${
+                theme === "glass"
+                  ? "text-blue-200 hover:text-white"
+                  : theme === "dark"
+                  ? "text-blue-400 hover:text-blue-300"
+                  : "text-blue-600 hover:text-blue-500"
+              }`}
             >
               Forgot your password?
             </Link>
@@ -126,10 +180,22 @@ const Login: React.FC = () => {
         </div>
 
         {errors.root && (
-          <div className="rounded-md bg-red-50 p-4">
+          <div
+            className={`rounded-md p-4 ${
+              theme === "glass"
+                ? "bg-red-500 bg-opacity-20 backdrop-blur-sm border border-red-300 border-opacity-30"
+                : theme === "dark"
+                ? "bg-red-900 bg-opacity-50"
+                : "bg-red-50"
+            }`}
+          >
             <div className="flex">
               <svg
-                className="h-5 w-5 text-red-400"
+                className={`h-5 w-5 ${
+                  theme === "glass" || theme === "dark"
+                    ? "text-red-300"
+                    : "text-red-400"
+                }`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -140,7 +206,15 @@ const Login: React.FC = () => {
                 />
               </svg>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{errors.root.message}</p>
+                <p
+                  className={`text-sm ${
+                    theme === "glass" || theme === "dark"
+                      ? "text-red-100"
+                      : "text-red-800"
+                  }`}
+                >
+                  {errors.root.message}
+                </p>
               </div>
             </div>
           </div>
@@ -153,17 +227,24 @@ const Login: React.FC = () => {
           fullWidth
           isLoading={isLoading}
           disabled={!isValid}
+          className="theme-button-primary"
         >
           {isLoading ? "Signing In..." : "Sign In"}
         </Button>
       </form>
 
       <div className="text-center">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm theme-text-secondary">
           Don't have an account?{" "}
           <Link
             to="/auth/signup"
-            className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            className={`font-medium transition-colors ${
+              theme === "glass"
+                ? "text-blue-200 hover:text-white"
+                : theme === "dark"
+                ? "text-blue-400 hover:text-blue-300"
+                : "text-blue-600 hover:text-blue-500"
+            }`}
           >
             Create one here
           </Link>
@@ -173,10 +254,26 @@ const Login: React.FC = () => {
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
+            <div
+              className={`w-full border-t ${
+                theme === "glass"
+                  ? "border-white border-opacity-30"
+                  : theme === "dark"
+                  ? "border-gray-600"
+                  : "border-gray-300"
+              }`}
+            />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">
+            <span
+              className={`px-2 ${
+                theme === "glass"
+                  ? "bg-transparent text-white text-opacity-70"
+                  : theme === "dark"
+                  ? "bg-gray-800 text-gray-400"
+                  : "bg-white text-gray-500"
+              }`}
+            >
               Secure login powered by JWT
             </span>
           </div>

@@ -1,15 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { joiResolver } from "@hookform/resolvers/joi";
+import { toast } from "react-toastify";
 import type { SignUpFormData } from "../../types";
 import { signUpSchema } from "../../utils/validation";
 import { FormField, Button, PasswordStrength } from "../../components/forms";
+import { useAuth } from "../../hooks/useAuth";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const { theme } = useTheme();
   const [passwordValue, setPasswordValue] = useState("");
+  const {
+    register: registerUser,
+    isLoading,
+    error,
+    clearError,
+    isAuthenticated,
+  } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Clear errors when component mounts
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const {
     register,
@@ -30,36 +52,35 @@ const SignUp: React.FC = () => {
 
   const onSubmit = async (data: SignUpFormData) => {
     try {
-      setIsLoading(true);
+      clearError();
+      const success = await registerUser(data);
 
-      // TODO: Replace with actual API call
-      console.log("Sign up data:", data);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Navigate to login page with success message
-      navigate("/auth/login", {
-        state: { message: "Account created successfully! Please log in." },
-      });
-    } catch (error) {
-      console.error("Sign up error:", error);
+      if (success) {
+        toast.success("Account created successfully! Welcome to Trading App!");
+        navigate("/dashboard", { replace: true });
+      } else {
+        // Error is handled by context, but show a form error if needed
+        setError("root", {
+          type: "manual",
+          message: error || "Failed to create account. Please try again.",
+        });
+      }
+    } catch (err: any) {
+      console.error("Sign up error:", err);
       setError("root", {
         type: "manual",
-        message: "Failed to create account. Please try again.",
+        message: "An unexpected error occurred. Please try again.",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">
+        <h2 className="text-2xl font-bold theme-text-primary">
           Create your account
         </h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-sm theme-text-secondary">
           Join us and start your trading journey
         </p>
       </div>
@@ -123,10 +144,22 @@ const SignUp: React.FC = () => {
         />
 
         {errors.root && (
-          <div className="rounded-md bg-red-50 p-4">
+          <div
+            className={`rounded-md p-4 ${
+              theme === "glass"
+                ? "bg-red-500 bg-opacity-20 backdrop-blur-sm border border-red-300 border-opacity-30"
+                : theme === "dark"
+                ? "bg-red-900 bg-opacity-50"
+                : "bg-red-50"
+            }`}
+          >
             <div className="flex">
               <svg
-                className="h-5 w-5 text-red-400"
+                className={`h-5 w-5 ${
+                  theme === "glass" || theme === "dark"
+                    ? "text-red-300"
+                    : "text-red-400"
+                }`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -137,7 +170,15 @@ const SignUp: React.FC = () => {
                 />
               </svg>
               <div className="ml-3">
-                <p className="text-sm text-red-800">{errors.root.message}</p>
+                <p
+                  className={`text-sm ${
+                    theme === "glass" || theme === "dark"
+                      ? "text-red-100"
+                      : "text-red-800"
+                  }`}
+                >
+                  {errors.root.message}
+                </p>
               </div>
             </div>
           </div>
@@ -149,6 +190,7 @@ const SignUp: React.FC = () => {
           size="lg"
           fullWidth
           isLoading={isLoading}
+          className="theme-button-primary"
           disabled={!isValid}
         >
           {isLoading ? "Creating Account..." : "Create Account"}
@@ -156,11 +198,17 @@ const SignUp: React.FC = () => {
       </form>
 
       <div className="text-center">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm theme-text-secondary">
           Already have an account?{" "}
           <Link
             to="/auth/login"
-            className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            className={`font-medium transition-colors ${
+              theme === "glass"
+                ? "text-blue-200 hover:text-white"
+                : theme === "dark"
+                ? "text-blue-400 hover:text-blue-300"
+                : "text-blue-600 hover:text-blue-500"
+            }`}
           >
             Sign in here
           </Link>

@@ -1,8 +1,7 @@
 import { apiRequest } from "./api";
+import { tokenManager } from "./api";
 import type {
   AuthResponse,
-  SignUpFormData,
-  LoginFormData,
   ForgotPasswordFormData,
   ResetPasswordFormData,
   User,
@@ -12,15 +11,74 @@ import type {
 // Authentication service functions
 export const authService = {
   // User registration
-  register: async (
-    data: SignUpFormData
-  ): Promise<ApiResponse<AuthResponse>> => {
-    return apiRequest<AuthResponse>("POST", "/auth/register", data);
+  signUp: async (userData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }): Promise<ApiResponse<AuthResponse>> => {
+    try {
+      const response = await apiRequest<AuthResponse>(
+        "POST",
+        "/auth/register",
+        userData
+      );
+
+      if (response.success && response.data) {
+        // Store tokens and user data
+        const { user, token } = response.data;
+        if (token) {
+          tokenManager.setToken(token);
+          // Note: API returns single 'token' field, not 'tokens.accessToken'
+        }
+        if (user) {
+          localStorage.setItem("user", JSON.stringify(user));
+        }
+      }
+
+      return response;
+    } catch (error) {
+      console.error("SignUp error:", error);
+      return {
+        success: false,
+        message: "Network error occurred",
+        data: undefined,
+      };
+    }
   },
 
   // User login
-  login: async (data: LoginFormData): Promise<ApiResponse<AuthResponse>> => {
-    return apiRequest<AuthResponse>("POST", "/auth/login", data);
+  signIn: async (
+    email: string,
+    password: string
+  ): Promise<ApiResponse<AuthResponse>> => {
+    try {
+      const response = await apiRequest<AuthResponse>("POST", "/auth/login", {
+        email,
+        password,
+      });
+
+      if (response.success && response.data) {
+        // Store tokens and user data
+        const { user, token } = response.data;
+        if (token) {
+          tokenManager.setToken(token);
+          // Note: API returns single 'token' field, not 'tokens.accessToken'
+        }
+        if (user) {
+          localStorage.setItem("user", JSON.stringify(user));
+        }
+      }
+
+      return response;
+    } catch (error) {
+      console.error("SignIn error:", error);
+      return {
+        success: false,
+        message: "Network error occurred",
+        data: undefined,
+      };
+    }
   },
 
   // Forgot password request
@@ -40,27 +98,41 @@ export const authService = {
     return apiRequest<User>("GET", "/auth/profile");
   },
 
-  // Logout user (client-side)
+  // Update user profile
+  updateProfile: async (data: Partial<User>): Promise<ApiResponse<User>> => {
+    const response = await apiRequest<User>("PUT", "/auth/profile", data);
+
+    if (response.success && response.data) {
+      // Update stored user data
+      localStorage.setItem("user", JSON.stringify(response.data));
+    }
+
+    return response;
+  },
+
+  // Change password
+  changePassword: async (data: {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }): Promise<ApiResponse> => {
+    return apiRequest("POST", "/auth/change-password", data);
+  },
+
+  // Logout user
   logout: () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
-    window.location.href = "/auth/login";
-  },
-
-  // Get stored auth token
-  getToken: (): string | null => {
-    return localStorage.getItem("authToken");
-  },
-
-  // Store auth token
-  setToken: (token: string): void => {
-    localStorage.setItem("authToken", token);
+    tokenManager.removeTokens();
+    // Don't force redirect here - let React Router handle it
   },
 
   // Get stored user data
   getUser: (): User | null => {
-    const userStr = localStorage.getItem("user");
-    return userStr ? JSON.parse(userStr) : null;
+    try {
+      const userStr = localStorage.getItem("user");
+      return userStr ? JSON.parse(userStr) : null;
+    } catch {
+      return null;
+    }
   },
 
   // Store user data
@@ -70,8 +142,21 @@ export const authService = {
 
   // Check if user is authenticated
   isAuthenticated: (): boolean => {
-    const token = authService.getToken();
+    const token = tokenManager.getToken();
     const user = authService.getUser();
-    return !!(token && user);
+    const isValid = tokenManager.isTokenValid();
+
+    console.log("authService.isAuthenticated check:", {
+      hasToken: !!token,
+      hasUser: !!user,
+      isTokenValid: isValid,
+    });
+
+    return !!token && !!user && isValid;
+  },
+
+  // Get current auth token
+  getToken: (): string | null => {
+    return tokenManager.getToken();
   },
 };

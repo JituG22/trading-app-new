@@ -1,5 +1,3 @@
-// Placeholder file for routes
-// Authentication routes will be implemented in Step 5
-
-export const placeholder =
-  "Routes will be implemented in Step 5: Authentication APIs";
+// Route exports
+export { default as authRoutes } from "./authRoutes";
+export { default as userRoutes } from "./userRoutes";

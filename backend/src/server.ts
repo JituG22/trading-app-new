@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/database";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
+import { apiRateLimit } from "./middleware/rateLimiting";
+import { authRoutes, userRoutes } from "./routes";
 
 // Load environment variables
 dotenv.config();
@@ -24,6 +26,9 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
+// Global rate limiting
+app.use("/api", apiRateLimit);
+
 // Health check route
 app.get("/health", (_req, res) => {
   res.json({
@@ -33,7 +38,10 @@ app.get("/health", (_req, res) => {
   });
 });
 
-// API routes will be added here in Step 5
+// API routes
+app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
+
 app.get("/api", (_req, res) => {
   res.json({
     success: true,
@@ -41,6 +49,22 @@ app.get("/api", (_req, res) => {
     endpoints: {
       health: "/health",
       auth: "/api/auth/*",
+      user: "/api/user/*",
+    },
+    authEndpoints: {
+      register: "POST /api/auth/register",
+      login: "POST /api/auth/login",
+      profile: "GET /api/auth/profile",
+      updateProfile: "PUT /api/auth/profile",
+      forgotPassword: "POST /api/auth/forgot-password",
+      resetPassword: "POST /api/auth/reset-password",
+      changePassword: "POST /api/auth/change-password",
+      deactivateAccount: "DELETE /api/auth/account",
+    },
+    userEndpoints: {
+      profile: "GET /api/user/profile",
+      updateProfile: "PUT /api/user/profile",
+      updateTheme: "PUT /api/user/theme",
     },
   });
 });

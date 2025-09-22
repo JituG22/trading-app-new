@@ -2,6 +2,57 @@ import axios from "axios";
 import type { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 import type { ApiResponse } from "../types";
 
+// Token management utilities
+export const tokenManager = {
+  getToken: (): string | null => {
+    return localStorage.getItem("accessToken");
+  },
+
+  setToken: (token: string): void => {
+    localStorage.setItem("accessToken", token);
+  },
+
+  getRefreshToken: (): string | null => {
+    return localStorage.getItem("refreshToken");
+  },
+
+  setRefreshToken: (token: string): void => {
+    localStorage.setItem("refreshToken", token);
+  },
+
+  removeTokens: (): void => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+  },
+
+  isTokenValid: (): boolean => {
+    const token = tokenManager.getToken();
+    if (!token) return false;
+
+    try {
+      // Basic token expiration check (JWT payload)
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const now = Math.floor(Date.now() / 1000);
+      const isExpired = payload.exp <= now;
+
+      console.log(
+        "Token validation - expires at:",
+        new Date(payload.exp * 1000),
+        "current time:",
+        new Date(),
+        "isExpired:",
+        isExpired
+      );
+
+      return !isExpired;
+    } catch (error) {
+      console.error("Token validation error:", error);
+      return false;
+    }
+  },
+};
+
 // Create axios instance with base configuration
 const api: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
@@ -14,8 +65,8 @@ const api: AxiosInstance = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
+    const token = tokenManager.getToken();
+    if (token && tokenManager.isTokenValid()) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -26,16 +77,19 @@ api.interceptors.request.use(
 );
 
 // Response interceptor to handle common responses
+// Response interceptor for handling errors
 api.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
   },
   (error: AxiosError) => {
-    // Handle 401 Unauthorized - redirect to login
+    console.log("API Error:", error.response?.status, error.config?.url);
+
+    // Handle 401 Unauthorized - be more careful about when we clear tokens
     if (error.response?.status === 401) {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-      window.location.href = "/auth/login";
+      console.log("401 Unauthorized detected");
+      // TODO: Implement more sophisticated token refresh logic
+      // For now, let the auth context handle token validation
     }
 
     return Promise.reject(error);

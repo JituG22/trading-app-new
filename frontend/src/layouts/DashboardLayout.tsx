@@ -1,50 +1,47 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
+import { useTheme } from "../contexts/ThemeContext";
+import Sidebar from "../components/dashboard/Sidebar";
+import TopNav from "../components/dashboard/TopNav";
 
 const DashboardLayout: React.FC = () => {
+  const { theme } = useTheme();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleSidebarToggle = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleSidebarClose = () => {
+    setSidebarOpen(false);
+  };
+
+  const getBackgroundClasses = () => {
+    switch (theme) {
+      case "glass":
+        return "h-screen w-full bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 flex flex-col overflow-hidden";
+      case "dark":
+        return "h-screen w-full bg-gray-900 flex flex-col overflow-hidden";
+      default:
+        return "h-screen w-full bg-gray-50 flex flex-col overflow-hidden";
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar - Placeholder */}
-      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg">
-        <div className="flex h-16 items-center justify-center border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-900">Trading App</h1>
-        </div>
-        <nav className="mt-8 px-4">
-          <div className="space-y-2">
-            <div className="bg-primary-50 text-primary-700 px-3 py-2 rounded-lg">
-              Dashboard
-            </div>
-            <div className="text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-lg cursor-pointer">
-              Trading
-            </div>
-            <div className="text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-lg cursor-pointer">
-              Portfolio
-            </div>
-            <div className="text-gray-600 hover:bg-gray-50 px-3 py-2 rounded-lg cursor-pointer">
-              Settings
-            </div>
-          </div>
-        </nav>
-      </div>
+    <div className={`theme-container ${theme} ${getBackgroundClasses()}`}>
+      {/* Top navigation - Full width */}
+      <TopNav onMenuClick={handleSidebarToggle} />
 
-      {/* Main content area */}
-      <div className="ml-64">
-        {/* Top navigation - Placeholder */}
-        <header className="bg-white shadow-sm border-b border-gray-200">
-          <div className="flex h-16 items-center justify-between px-6">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">Dashboard</h2>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">Welcome back!</div>
-              <div className="h-8 w-8 bg-primary-500 rounded-full"></div>
-            </div>
-          </div>
-        </header>
+      {/* Main layout with sidebar and content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <Sidebar isOpen={sidebarOpen} onClose={handleSidebarClose} />
 
-        {/* Page content */}
-        <main className="p-6">
-          <Outlet />
+        {/* Main content area */}
+        <main className="flex-1 overflow-auto">
+          <div className="h-full px-4 py-6 sm:px-6 lg:px-8">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
